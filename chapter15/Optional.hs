@@ -1,6 +1,7 @@
 module Optional where
 
 import Data.Monoid
+import Test.QuickCheck
 
 data Optional a =
     Nada
@@ -13,3 +14,12 @@ instance Monoid a => Monoid (Optional a) where
   mappend x Nada = x
   mappend (Only x) (Only y) = Only (x `mappend` y)
 
+-- new code
+instance Arbitrary a => Arbitrary (Optional a) where
+  arbitrary = genOptional
+
+genOptional :: Arbitrary a => Gen (Optional a)
+genOptional = do
+  a <- arbitrary
+  oneof [return Nada,return $ Only a]
+  
