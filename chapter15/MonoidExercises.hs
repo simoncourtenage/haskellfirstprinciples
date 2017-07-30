@@ -106,4 +106,53 @@ instance Semigroup b => Semigroup (Combine a b) where
 instance (Semigroup b,Monoid b) => Monoid (Combine a b) where
   mempty = Combine mempty
   mappend = (<>)
- 
+
+-- exercise 7
+
+newtype Comp a = Comp { unComp :: (a -> a) }
+
+instance Semigroup (Comp a) where
+  (Comp f) <> (Comp f') = Comp $ f . f'
+
+instance Monoid (Comp a) where
+  mempty = Comp id
+  mappend = (<>)
+
+-- exercise 8
+
+newtype Mem s a =
+  Mem {
+        runMem :: s -> (a,s)
+      }
+
+{--
+  Below is one solution to the problem.  A simpler solution would be to define mappend in the Monoid instance
+  using the value given for (<>) in the Semigroup instance - as shown here
+  https://github.com/lukleh/haskell-book-exercises/blob/gh-pages/ch15/ch15_15.14_20.hs, which uses (<>) imported
+  from Data.Monoid, so Semigroup isn't needed.
+
+  The key elements of the solution, though, are the chaining of the 's' values and the (<>) of the 'a' values.  This
+  gives you the required behaviour.
+--}
+
+instance Semigroup a => Semigroup (Mem s a) where
+  (Mem f) <> (Mem f') =
+    Mem $ \s -> let (a1,s1) = f' s
+                    (a2,s2) = f s1
+                in (a1 <> a2,s2)
+                   
+
+instance (Semigroup a,Monoid a) => Monoid (Mem s a) where
+  mempty = Mem $ \s -> (mempty,s)
+  mappend = (<>)
+
+f' = Mem $ \s -> ("hi",s+1)
+
+check :: IO ()
+check = do
+  print $ runMem (f' <> mempty) 0
+  print $ runMem (mempty <> f') 0
+  print $ (runMem mempty 0 :: (String,Int))
+  print $ runMem (f' <> mempty) 0 == runMem f' 0
+  print $ runMem (mempty <> f') 0 == runMem f' 0
+  
