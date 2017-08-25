@@ -60,5 +60,14 @@ instance Applicative List where
 functions = Cons (+1) (Cons (*2) Nil)
 values = Cons 1 (Cons 2 Nil)
 
+instance Arbitrary a => Arbitrary (List a) where
+  arbitrary = do
+    a <- arbitrary
+    b <- arbitrary
+    frequency [(1,return Nil),(3, return $ Cons a b)]
 
+instance Eq a => EqProp (List a) where (=-=) = eq
+
+check :: IO ()
+check = quickBatch $ applicative (Nil :: List (Int, Int,Int))
 
