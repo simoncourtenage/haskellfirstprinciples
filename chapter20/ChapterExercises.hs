@@ -3,7 +3,7 @@ module ChapterExercises where
 import Data.Monoid
 
 {--
-  Answers to exercises in Chapter 19 of Haskell Programming from First Principles.
+  Answers to exercises in Chapter 20 of Haskell Programming from First Principles.
 --}
 
 -- Exercise 1
